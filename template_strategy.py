@@ -2,22 +2,20 @@ from backtesting import Backtesting
 
 from numpy import array
 from pandas import DataFrame
-import random
+
 
 class Strategy_Name(Backtesting):
     """
     Define strategy
     """
     def __init__(self,
-                 ma_period: int
                  ):
         super().__init__()
-        self.ma_period = ma_period
         
     def _get_features(self, dataframe: DataFrame) -> DataFrame:
         """
         Apply calculations on ohlcv dataframe
-        @param dataframe: pandas dataframe with ['date', 'open', 'high', 'low', 'close', 'volume']
+        @param dataframe: pandas dataframe with ['date', 'open', 'high', 'low', 'close', 'volume']. Could be replaced with any dataframe with prices.
         @return pandas dataframe with calculations as added columns
         """
 
@@ -54,5 +52,4 @@ class Strategy_Name(Backtesting):
         
         return dataframe
         
-        
-    
+            

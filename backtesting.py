@@ -1,5 +1,5 @@
-from numpy import array, nan, select, where, mean, std
-from pandas import DataFrame, Grouper, to_datetime
+from numpy import array, nan, select, where
+from pandas import DataFrame, to_datetime
 from typing import List
 
 
@@ -59,24 +59,26 @@ class Backtesting:
         @return pandas dataframe, the backtested trades with start/end date, profit/loss for that trade etc
         """
         # When position switches from 0 to 1, it means a buy. Same reverse logic holds for selling 
-        buys = positions.loc[positions['positions'] > positions['positions'].shift()].copy()
-        sells = positions.loc[positions['positions'] < positions['positions'].shift()].copy()
+        # buys = positions.loc[positions['positions'] > positions['positions'].shift()].copy()
+        # sells = positions.loc[positions['positions'] < positions['positions'].shift()].copy()
+        buys = positions.loc[positions['positions'].shift() > positions['positions'].shift(2)].copy()
+        sells = positions.loc[positions['positions'].shift() < positions['positions'].shift(2)].copy()
         
-        # Ignore the last buy without sell/first sell without buy
+        # Ignore the last buy without sell and first sell without buy
         if len(buys) > len(sells):
             buys = buys.iloc[:-1]
         if len(buys) < len(sells):
             sells = sells.iloc[1:]
 
         # Build trades dataframe with buys and sells   
-        buy_cols = ['date', 'close', 'volume'] + buy_features if buy_features else ['date', 'close', 'volume']
+        buy_cols = ['date', 'open', 'volume'] + buy_features if buy_features else ['date', 'open', 'volume']
         trades_df = buys[buy_cols].copy()
 
-        sell_cols =  ['date', 'close', 'volume'] + sell_features if sell_features else ['date', 'close', 'volume']
+        sell_cols =  ['date', 'open', 'volume'] + sell_features if sell_features else ['date', 'open', 'volume']
         trades_df[['close_' + s for s in sell_cols]] = sells[sell_cols].values
         
-        # Get profit percentage, with fee's discounted(and a bit more for slippage/bid ask spread)
-        trades_df['close_profit'] = trades_df['close_close'] / trades_df['close'] - (1 + self.fee)
+        # Get profit percentage, with fee's discounted
+        trades_df['close_profit'] = trades_df['close_open'] / trades_df['open'] - (1 + self.fee)
         
         return trades_df
     
