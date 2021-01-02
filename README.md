@@ -1,7 +1,7 @@
 # Backtesting
 A python backtesting module
 
-# Eample usage
+# Example usage
 
 ```
 cd /backtesting
